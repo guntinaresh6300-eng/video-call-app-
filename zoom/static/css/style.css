@@ -433,12 +433,12 @@ input[type="text"]:focus {
   background: var(--bg-card);
   display: flex;
   flex-direction: column;
-  transform: translateX(100%);
-  transition: transform 0.25s ease;
+  margin-right: -300px;
+  transition: margin-right 0.25s ease;
 }
 
 .chat-panel.open {
-  transform: translateX(0);
+  margin-right: 0;
 }
 
 .chat-header {
@@ -627,4 +627,57 @@ input[type="text"]:focus {
 ::-webkit-scrollbar-thumb {
   background: var(--border);
   border-radius: 4px;
+}
+
+/* ── Mobile Responsive Overrides ── */
+@media (max-width: 768px) {
+  .room-layout {
+    position: relative;
+  }
+
+  /* Stack video tiles vertically on mobile portrait */
+  .video-area {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto !important;
+    overflow-y: auto;
+    align-content: start;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .video-area.two-users,
+  .video-area.grid-2x2,
+  .video-area.grid-3x3 {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: repeat(auto-fit, minmax(180px, 1fr)) !important;
+  }
+
+  .video-tile {
+    aspect-ratio: 4/3;
+    max-height: 250px;
+    width: 100%;
+  }
+
+  /* Overlay chat on mobile so it doesn't shrink the videos */
+  .chat-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 85% !important;
+    max-width: 300px;
+    height: 100%;
+    z-index: 100;
+    box-shadow: -4px 0 16px rgba(0, 0, 0, 0.4);
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    margin-right: 0 !important;
+    border-left: 1px solid var(--border) !important;
+  }
+
+  .chat-panel.open {
+    transform: translateX(0) !important;
+    width: 85% !important;
+    min-width: unset !important;
+  }
 }
