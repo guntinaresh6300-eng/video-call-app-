@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Room: {{ room_id }} — VideoCall</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+
+<body class="room-page">
+
+    <!-- Header -->
+    <header class="room-header">
+        <div class="header-left">
+            <span class="logo-sm">📹 VideoCall</span>
+            <span class="room-badge">Room: <strong id="room-display">{{ room_id }}</strong></span>
+        </div>
+        <div class="header-right">
+            <span class="conn-status" id="conn-status">● Connecting…</span>
+            <button class="btn-icon" id="btn-copy-room" title="Copy join link">🔗 Copy Link</button>
+        </div>
+    </header>
+
+    <!-- Main layout -->
+    <div class="room-layout">
+
+        <!-- Video area -->
+        <div class="video-area" id="video-area">
+
+            <!-- Local video -->
+            <div class="video-tile" id="local-tile">
+                <video id="local-video" autoplay muted playsinline></video>
+                <div class="video-label">You</div>
+                <div class="video-overlay hidden" id="local-overlay">
+                    <div class="cam-off-icon">📷</div>
+                    <span>Camera Off</span>
+                </div>
+            </div>
+
+            <!-- Remote video (injected dynamically) -->
+            <div class="video-tile waiting-tile" id="waiting-tile">
+                <div class="waiting-content">
+                    <div class="waiting-spinner"></div>
+                    <p>Waiting for others to join…</p>
+                    <p class="waiting-hint">Share the room code: <strong>{{ room_id }}</strong></p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Chat panel -->
+        <div class="chat-panel" id="chat-panel">
+            <div class="chat-header">
+                <span>💬 Chat</span>
+                <button class="btn-icon-sm" id="btn-close-chat">✕</button>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="chat-system">Chat is end-to-end in this room.</div>
+            </div>
+            <div class="chat-input-row">
+                <input type="text" id="chat-input" placeholder="Type a message…" maxlength="200" />
+                <button id="btn-send">Send</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Controls bar -->
+    <div class="controls-bar">
+        <button class="ctrl-btn active" id="btn-mic" title="Toggle mic">
+            <span class="ctrl-icon" id="mic-icon">🎤</span>
+            <span class="ctrl-label">Mute</span>
+        </button>
+        <button class="ctrl-btn active" id="btn-cam" title="Toggle camera">
+            <span class="ctrl-icon" id="cam-icon">📹</span>
+            <span class="ctrl-label">Stop Video</span>
+        </button>
+        <button class="ctrl-btn" id="btn-screen" title="Share screen">
+            <span class="ctrl-icon">🖥️</span>
+            <span class="ctrl-label">Share Screen</span>
+        </button>
+        <button class="ctrl-btn" id="btn-chat" title="Open chat">
+            <span class="ctrl-icon">💬</span>
+            <span class="ctrl-label">Chat</span>
+            <span class="chat-badge hidden" id="chat-badge">0</span>
+        </button>
+        <button class="ctrl-btn leave" id="btn-leave" title="Leave meeting">
+            <span class="ctrl-icon">📵</span>
+            <span class="ctrl-label">Leave</span>
+        </button>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        // Pass room_id from Flask to JS
+        window.ROOM_ID = "{{ room_id }}";
+    </script>
+    <script src="/static/js/room.js"></script>
+</body>
+
+</html>

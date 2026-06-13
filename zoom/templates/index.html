@@ -1,0 +1,96 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZoomClone — Video Calls</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body class="landing-page">
+  <div class="landing-container">
+    <div class="logo-area">
+      <div class="logo-icon">📹</div>
+      <h1>VideoCall</h1>
+      <p class="tagline">Crystal-clear video meetings. No installs needed.</p>
+    </div>
+
+    <div class="card">
+      <div class="tab-bar">
+        <button class="tab active" data-tab="new">New Meeting</button>
+        <button class="tab" data-tab="join">Join Room</button>
+      </div>
+
+      <div class="tab-content" id="tab-new">
+        <p class="card-desc">Start a new meeting and share the room code with others.</p>
+        <button class="btn-primary" id="btn-new-room">
+          <span>🎬</span> Start New Meeting
+        </button>
+        <div id="new-room-result" class="room-result hidden">
+          <label>Your Room Code</label>
+          <div class="code-row">
+            <span id="generated-code" class="room-code"></span>
+            <button class="btn-copy" id="btn-copy">Copy</button>
+          </div>
+          <a id="btn-enter-room" class="btn-primary mt" href="#">
+            Enter Room →
+          </a>
+        </div>
+      </div>
+
+      <div class="tab-content hidden" id="tab-join">
+        <p class="card-desc">Enter a room code shared by your host.</p>
+        <input type="text" id="room-input" placeholder="Enter room code (e.g. abc-xyz)" maxlength="20"
+          autocomplete="off">
+        <button class="btn-primary mt" id="btn-join">
+          <span>🚀</span> Join Meeting
+        </button>
+      </div>
+    </div>
+
+    <p class="footer-note">Works best in Chrome · Firefox · Edge</p>
+  </div>
+
+  <script>
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.remove('hidden');
+      });
+    });
+
+    // Generate room
+    document.getElementById('btn-new-room').addEventListener('click', () => {
+      const code = Math.random().toString(36).substring(2, 5) + '-' +
+        Math.random().toString(36).substring(2, 5);
+      document.getElementById('generated-code').textContent = code;
+      document.getElementById('btn-enter-room').href = '/room/' + code;
+      document.getElementById('new-room-result').classList.remove('hidden');
+    });
+
+    // Copy code
+    document.getElementById('btn-copy').addEventListener('click', () => {
+      const code = document.getElementById('generated-code').textContent;
+      navigator.clipboard.writeText(code);
+      document.getElementById('btn-copy').textContent = '✓ Copied';
+      setTimeout(() => document.getElementById('btn-copy').textContent = 'Copy', 2000);
+    });
+
+    // Join room
+    document.getElementById('btn-join').addEventListener('click', () => {
+      const code = document.getElementById('room-input').value.trim();
+      if (code) window.location.href = '/room/' + code;
+    });
+
+    document.getElementById('room-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('btn-join').click();
+    });
+  </script>
+
+
+</body>
+
+</html>
