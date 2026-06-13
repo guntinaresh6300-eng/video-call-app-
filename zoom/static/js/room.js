@@ -44,26 +44,44 @@ async function startLocalMedia() {
     localVideo.srcObject = localStream;
     console.log('[Media] Local stream started');
   } catch (err) {
-    console.warn('[Media] getUserMedia failed:', err);
-    addSystemMessage('⚠️ Camera/mic permission denied. You can still join.');
-    localOverlay.classList.remove('hidden');
-    localOverlay.querySelector('span').textContent = 'No camera access';
-    isCamOff = true;
-    isMuted = true;
-    
-    // Update button states in UI
-    const camBtn = document.getElementById('btn-cam');
-    if (camBtn) {
-      camBtn.querySelector('.ctrl-label').textContent = 'Start Video';
-      document.getElementById('cam-icon').textContent = '🚫';
-      camBtn.classList.add('cam-off');
-    }
+    console.warn('[Media] Dual getUserMedia failed, trying audio only...', err);
+    try {
+      localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      localVideo.srcObject = localStream;
+      console.log('[Media] Audio-only stream started');
+      localOverlay.classList.remove('hidden');
+      localOverlay.querySelector('span').textContent = 'No camera access';
+      isCamOff = true;
+      
+      // Update UI for camera off
+      const camBtn = document.getElementById('btn-cam');
+      if (camBtn) {
+        camBtn.querySelector('.ctrl-label').textContent = 'Start Video';
+        document.getElementById('cam-icon').textContent = '🚫';
+        camBtn.classList.add('cam-off');
+      }
+    } catch (audioErr) {
+      console.warn('[Media] Audio-only getUserMedia failed:', audioErr);
+      addSystemMessage('⚠️ Camera and microphone access denied. You can still join.');
+      localOverlay.classList.remove('hidden');
+      localOverlay.querySelector('span').textContent = 'No media access';
+      isCamOff = true;
+      isMuted = true;
+      
+      // Update button states in UI
+      const camBtn = document.getElementById('btn-cam');
+      if (camBtn) {
+        camBtn.querySelector('.ctrl-label').textContent = 'Start Video';
+        document.getElementById('cam-icon').textContent = '🚫';
+        camBtn.classList.add('cam-off');
+      }
 
-    const micBtn = document.getElementById('btn-mic');
-    if (micBtn) {
-      micBtn.querySelector('.ctrl-label').textContent = 'Unmute';
-      document.getElementById('mic-icon').textContent = '🔇';
-      micBtn.classList.add('muted');
+      const micBtn = document.getElementById('btn-mic');
+      if (micBtn) {
+        micBtn.querySelector('.ctrl-label').textContent = 'Unmute';
+        document.getElementById('mic-icon').textContent = '🔇';
+        micBtn.classList.add('muted');
+      }
     }
   }
 }
@@ -270,13 +288,20 @@ function createRemoteTile(peerId) {
 function showRemoteVideo(peerId, stream) {
   createRemoteTile(peerId);
   const video = document.getElementById(`video-${peerId}`);
-  if (video) {
+  if (video && video.srcObject !== stream) {
     video.srcObject = stream;
+    video.play().catch(err => {
+      console.warn('[Video] Remote play failed:', err);
+    });
   }
 }
 
 function removeRemoteVideo(peerId) {
   const tile = document.getElementById(`remote-tile-${peerId}`);
+  const pcExists = !!peerConnections[peerId];
+  
+  if (!tile && !pcExists) return; // Already cleaned up
+
   if (tile) tile.remove();
   
   if (peerConnections[peerId]) {
